@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="ShogunVS.Views.TopBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"       
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             TextElement.Foreground="white"
+             Background="{DynamicResource MaterialDesignPaper}"
+             Foreground="Black">
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="300"/>
+            </Grid.RowDefinitions>
+        </Grid>
+    </StackPanel>
+
+</UserControl>
