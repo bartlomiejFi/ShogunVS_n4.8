@@ -16,6 +16,8 @@ namespace ShogunVS.Models
         public Result fourth = new Result();
         public Result fifth = new Result();
 
+        public Result neutral = new Result();
+
         public int YellowArmyNo;
         public int BlueArmyNo;
         public int RedArmyNo;

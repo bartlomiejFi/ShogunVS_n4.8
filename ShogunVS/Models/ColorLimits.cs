@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenCvSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +20,6 @@ namespace ShogunVS.Models
         public int ValMin { get; set; } = 0;
 
         public int ValMax { get; set; } = 0;
+
     }
 }

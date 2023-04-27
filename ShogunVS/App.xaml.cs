@@ -31,6 +31,7 @@ namespace ShogunVS
         {
             containerRegistry.RegisterSingleton<CameraDevice>();
             containerRegistry.RegisterSingleton<CameraStreaming>();
+            containerRegistry.RegisterSingleton<YeelightControl>();
             containerRegistry.RegisterSingleton<ImageProcessing>();
             containerRegistry.RegisterSingleton<FiltersSettings>();
             containerRegistry.RegisterSingleton<Results>();

@@ -25,6 +25,8 @@ namespace ShogunVS.ViewModels
 
         private WriteableBitmap _writableBitmapCOLOR;
 
+        private ProcessedFrames _processedFrames;
+
         private int _hueMin;
 
         private int _hueMax;
@@ -68,12 +70,16 @@ namespace ShogunVS.ViewModels
             results = container.Resolve<Results>();
             FramesList = typeof(ProcessedFrames).GetFields().Select(x => x.Name).Where(i => i.Contains("Game") == false).ToList();
 
-            SelectedFrame = FramesList[0];
-            SelectedFrame = FramesList[1];
-            SelectedFrame = FramesList[2];
-            SelectedFrame = FramesList[3];
-            SelectedFrame = FramesList[4];
-            SelectedFrame = FramesList[5];
+            foreach (var item in FramesList)
+            {
+                SelectedFrame = FramesList[FramesList.IndexOf(item)];
+            }
+            //SelectedFrame = FramesList[0];
+            //SelectedFrame = FramesList[1];
+            //SelectedFrame = FramesList[2];
+            //SelectedFrame = FramesList[3];
+            //SelectedFrame = FramesList[4];
+            //SelectedFrame = FramesList[5];
             SelectedFrame = FramesList.FirstOrDefault();
 
 
@@ -84,6 +90,7 @@ namespace ShogunVS.ViewModels
             // Commands.
             SaveSettingsCommand = new DelegateCommand(SaveSettings);
             LoadSettingsCommand = new DelegateCommand(LoadSettings);
+            SelectROICommand = new DelegateCommand(SelectROI);
         }
 
         #endregion
@@ -92,6 +99,7 @@ namespace ShogunVS.ViewModels
 
         public DelegateCommand SaveSettingsCommand { get; private set; }
         public DelegateCommand LoadSettingsCommand { get; private set; }
+        public DelegateCommand SelectROICommand { get; private set; }
 
         public FiltersSettings Settings
         {
@@ -237,10 +245,17 @@ namespace ShogunVS.ViewModels
 
         #region Methods
 
+        private void SelectROI()
+        {
+            imageProcessing.FiltersSettings.ROI =  Cv2.SelectROI(_processedFrames.GameRegion);
+            FiltersSettings.Save();
+        }
+
         private void OnProcessedFramesUpdate(object sender, ProcessedFrames processedFrames)
         {
             try
             {
+                _processedFrames = processedFrames;
                 var bmp = processedFrames.BlackPlayer.ToWriteableBitmap();
                 switch (SelectedFrame)
                 {
@@ -261,6 +276,27 @@ namespace ShogunVS.ViewModels
                         break;
                     case "GreenNeutral":
                         bmp = processedFrames.GreenNeutral.ToWriteableBitmap();
+                        break;
+                    case "YellowMask":
+                        bmp = processedFrames.YellowMask.ToWriteableBitmap();
+                        break;
+                    case "BlackMask":
+                        bmp = processedFrames.BlackMask.ToWriteableBitmap();
+                        break;
+                    case "BlueMask":
+                        bmp = processedFrames.BlueMask.ToWriteableBitmap();
+                        break;
+                    case "PurpleMask":
+                        bmp = processedFrames.PurpleMask.ToWriteableBitmap();
+                        break;
+                    case "RedMask":
+                        bmp = processedFrames.RedMask.ToWriteableBitmap();
+                        break;
+                    case "GreenMask":
+                        bmp = processedFrames.GreenMask.ToWriteableBitmap();
+                        break;
+                    case "MasksSummary":
+                        bmp = processedFrames.MasksSummary.ToWriteableBitmap();
                         break;
                 }
                 bmp.Freeze();

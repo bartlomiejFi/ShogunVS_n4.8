@@ -27,6 +27,7 @@ namespace ShogunVS.Services
 
         private ProcessedFrames processedFrames { get; set; }
 
+        private YeelightControl yeelightControl { get; set; }
         private Results results { get; set; }
 
         public FiltersSettings FiltersSettings { get; set; }
@@ -52,8 +53,10 @@ namespace ShogunVS.Services
         {
             cameraStreaming = container.Resolve<CameraStreaming>();
             FiltersSettings = container.Resolve<FiltersSettings>();
+            yeelightControl = container.Resolve<YeelightControl>();
             results = container.Resolve<Results>();
             cameraStreaming.OnFrameUpdate += OnFrameUpdate;
+
         }
 
         #endregion
@@ -66,33 +69,52 @@ namespace ShogunVS.Services
             {
                 processedFrames = new ProcessedFrames();
                 ////finding items
-                var frameBlur = new Mat();
-                var frameYellow = new Mat();
-                var frameRed = new Mat();
-                var frameBlue = new Mat();
-                var frameBlack = new Mat();
-                var framePurple = new Mat();
-                var frameGreen = new Mat();
+                var frameMasked = new Mat(newFrame.Size(),newFrame.Type());
+                var frameBlured = new Mat(newFrame.Size(), newFrame.Type());
+                var frameResult = newFrame;
 
-                var frameResult = new Mat();
-                //GaussianBlur
+                var frameYellow = processedFrames.YellowPlayer;
+                var frameRed = processedFrames.RedPlayer;
+                var frameBlue = processedFrames.BluePlayer;
+                var frameBlack = processedFrames.BlackPlayer;
+                var framePurple = processedFrames.PurplePlayer;
+                var frameGreen = processedFrames.GreenNeutral;
 
-                //Cv2.GaussianBlur(newFrame, frameBlur, new Size(GaussianBlurSize,GaussianBlurSize), 1);
+
+
+                //GaussianBlur   
+                Cv2.GaussianBlur(newFrame, frameBlured, new Size(FiltersSettings.GaussianBlurSize,FiltersSettings.GaussianBlurSize), 1);
+
+                //var frameMask = new Mat(frameBlur.Size(), frameBlur.Type(), Scalar.Black);
+
+                //var frameROI = new Mat(frameBlur, FiltersSettings.ROI);
+
+           
+
+                var frameMaskZeros = new Mat(frameBlured.Size(), MatType.CV_8U, Scalar.Black);//Mat.Zeros(frameBlur.Size(),MatType.CV_8U);
+                Cv2.Rectangle(frameMaskZeros, FiltersSettings.ROI, Scalar.White,-1);
+
+               
+
+                Cv2.BitwiseAnd(frameBlured, frameBlured, frameMasked, frameMaskZeros);  
+                
+               
                 //Cv2.MedianBlur(newFrame, frameBlur,1);
-                frameBlur = newFrame;
+                //frameBlur = newFrame;
                 //color filter
 
-                ColorFilter(YellowActLimits, frameYellow, frameBlur);
-                ColorFilter(RedActLimits, frameRed, frameBlur);
-                ColorFilter(BlueActLimits, frameBlue, frameBlur);
-                ColorFilter(BlackActLimits, frameBlack, frameBlur);
-                ColorFilter(PurpleActLimits, framePurple, frameBlur);
-                ColorFilter(GreenActLimits, frameGreen, frameBlur);
+                ColorFilter(YellowActLimits,processedFrames.YellowPlayer, frameMasked);
+                ColorFilter(RedActLimits, processedFrames.RedPlayer, frameMasked);
+                ColorFilter(BlueActLimits, processedFrames.BluePlayer, frameMasked);
+                ColorFilter(BlackActLimits, processedFrames.BlackPlayer, frameMasked);
+                ColorFilter(PurpleActLimits, processedFrames.PurplePlayer, frameMasked);
+                ColorFilter(GreenActLimits, processedFrames.GreenNeutral, frameMasked);
+
 
                 //Mat frameGRAY = newFrame.CvtColor(ColorConversionCodes.RGB2GRAY);
                 //processedFrames.BlackPlayer = frameGRAY;
 
-                frameResult = newFrame;
+                //   frameResult = frameMasked;
 
                 //Mat element = new Mat(3, 3, MatType.CV_8UC1);
                 //Cv2.Erode(frameYellow, frameYellow, element);
@@ -112,13 +134,82 @@ namespace ShogunVS.Services
                 // frameYellow =  frameYellow.Mul(100);
                 //Cv2.Canny(frameYellow, frameYellow, 500, 1000);
                 //Cv2.Canny(frameRed, frameRed, 200, 800);
-                ContourDetection(frameYellow,frameResult,Scalar.Orange,Scalar.Black,9,out results.YellowArmyNo);
-                ContourDetection(frameRed, frameResult, Scalar.DarkRed, Scalar.Black,9, out results.RedArmyNo);
-                ContourDetection(frameBlue, frameResult, Scalar.CornflowerBlue, Scalar.Black,9, out results.BlueArmyNo);
-                ContourDetection(frameBlack, frameResult, Scalar.DarkGray, Scalar.Purple,9, out results.BlackArmyNo);
-                ContourDetection(framePurple, frameResult, Scalar.MediumPurple, Scalar.Black,5, out results.PurpleArmyNo);
-                ContourDetection(frameGreen, frameResult, Scalar.LightGreen, Scalar.Black,9, out results.GreenArmyNo);
-                
+                processedFrames.RedMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.YellowMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.BlueMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.BlackMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.PurpleMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.GreenMask = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+                processedFrames.MasksSummary = new Mat(frameResult.Size(), MatType.CV_8UC1, Scalar.White);
+
+                int erodeGeneral = 6;
+                ContourDetection(processedFrames.RedPlayer, frameResult,processedFrames.RedMask, Scalar.Red, Scalar.Black, erodeGeneral, out results.RedArmyNo);
+
+                // SimpleBlobFilter(processedFrames.RedPlayer,frameResult,newFrame,Scalar.LavenderBlush);
+
+
+
+                Cv2.BitwiseAnd(processedFrames.MasksSummary, processedFrames.RedMask, processedFrames.MasksSummary);
+                Cv2.BitwiseAnd(processedFrames.YellowPlayer, processedFrames.MasksSummary, processedFrames.YellowPlayer);
+
+                ContourDetection(processedFrames.YellowPlayer, frameResult, processedFrames.YellowMask, Scalar.Orange, Scalar.Black, erodeGeneral, out results.YellowArmyNo);
+
+                Cv2.BitwiseAnd(processedFrames.MasksSummary, processedFrames.YellowMask, processedFrames.MasksSummary);
+                Cv2.BitwiseAnd(processedFrames.BluePlayer, processedFrames.MasksSummary, processedFrames.BluePlayer);
+
+
+                ContourDetection(frameBlue, frameResult, processedFrames.BlueMask, Scalar.CornflowerBlue, Scalar.Black, erodeGeneral, out results.BlueArmyNo);
+
+                Cv2.BitwiseAnd(processedFrames.MasksSummary, processedFrames.BlueMask, processedFrames.MasksSummary);
+                Cv2.BitwiseAnd(processedFrames.GreenNeutral, processedFrames.MasksSummary, processedFrames.GreenNeutral);
+
+                ContourDetection(frameGreen, frameResult, processedFrames.GreenMask, Scalar.LightGreen, Scalar.Black, erodeGeneral, out results.GreenArmyNo);
+
+                Cv2.BitwiseAnd(processedFrames.MasksSummary, processedFrames.GreenMask, processedFrames.MasksSummary);
+                Cv2.BitwiseAnd(processedFrames.PurplePlayer, processedFrames.MasksSummary, processedFrames.PurplePlayer);
+
+                ContourDetection(framePurple, frameResult, processedFrames.PurpleMask, Scalar.MediumPurple, Scalar.Black, erodeGeneral, out results.PurpleArmyNo);
+
+                Cv2.BitwiseAnd(processedFrames.MasksSummary, processedFrames.PurpleMask, processedFrames.MasksSummary);
+                Cv2.BitwiseAnd(processedFrames.BlackPlayer, processedFrames.MasksSummary, processedFrames.BlackPlayer);
+
+                ContourDetection(frameBlack, frameResult, processedFrames.BlackMask, Scalar.DarkGray, Scalar.Purple, erodeGeneral, out results.BlackArmyNo);
+
+                var frameMaskTopLine = new Mat(frameBlured.Size(), MatType.CV_8U, Scalar.Black);//Mat.Zeros(frameBlur.Size(),MatType.CV_8U);
+                Cv2.Rectangle(frameMaskTopLine, new Rect(0, 0, frameMaskTopLine.Width, 2), Scalar.White, -1);
+
+                var frameMaskBottomLine = new Mat(frameBlured.Size(), MatType.CV_8U, Scalar.Black);//Mat.Zeros(frameBlur.Size(),MatType.CV_8U);
+                Cv2.Rectangle(frameMaskBottomLine, new Rect(0, 718, frameMaskTopLine.Width, 2), Scalar.White, -1);
+
+                Cv2.Rectangle(frameResult, FiltersSettings.ROI, Scalar.White, 1,LineTypes.AntiAlias);
+
+                var topLineMean = Cv2.Mean(processedFrames.BlackPlayer, frameMaskTopLine);
+
+                if (topLineMean == new Scalar(255)
+                    ||
+                    Cv2.Mean(processedFrames.RedPlayer, frameMaskTopLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.BluePlayer, frameMaskTopLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.PurplePlayer, frameMaskTopLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.YellowPlayer, frameMaskTopLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.GreenNeutral, frameMaskTopLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.BlackPlayer, frameMaskBottomLine) == new Scalar(255)
+                      ||
+                    Cv2.Mean(processedFrames.RedPlayer, frameMaskBottomLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.BluePlayer, frameMaskBottomLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.PurplePlayer, frameMaskBottomLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.YellowPlayer, frameMaskBottomLine) == new Scalar(255)
+                     ||
+                    Cv2.Mean(processedFrames.GreenNeutral, frameMaskBottomLine) == new Scalar(255))
+                    return;
+
                 Dictionary<SolidColorBrush,int> resultsDictionary = new Dictionary<SolidColorBrush, int>();
                 resultsDictionary.Add(Brushes.Yellow,results.YellowArmyNo);
                 resultsDictionary.Add(Brushes.Red,results.RedArmyNo );
@@ -142,14 +233,17 @@ namespace ShogunVS.Services
                 results.fifth.armyNo = ordered.ElementAt(4).Value;
                 results.fifth.color = ordered.ElementAt(4).Key;
 
+                results.neutral.armyNo = results.GreenArmyNo;
+                results.neutral.color = Brushes.DarkGreen;
 
-                processedFrames.YellowPlayer =  frameYellow;
-                processedFrames.RedPlayer = frameRed;
-                processedFrames.BluePlayer = frameBlue;
-                processedFrames.BlackPlayer = frameBlack ;
-                processedFrames.PurplePlayer = framePurple;
-                processedFrames.GreenNeutral = frameGreen;
-                processedFrames.GameRegion = frameResult;
+
+                //processedFrames.YellowPlayer = frameMasked;   
+                //processedFrames.RedPlayer = frameMaskZeros;
+                //processedFrames.BluePlayer = frameMaskTopLine;
+                //processedFrames.BlackPlayer = frameBlack ;
+                //processedFrames.PurplePlayer = framePurple;
+                //processedFrames.GreenNeutral = frameGreen;
+                processedFrames.GameRegion = newFrame;
                 processedFrames.GameResult = frameResult;
                 OnProcessedFramesUpdate?.Invoke(this, processedFrames);
             }
@@ -186,29 +280,72 @@ namespace ShogunVS.Services
                           colorLimits.HueMax, colorLimits.SatMax, colorLimits.ValMax),processedMat);
         }
 
-        private void ContourDetection(Mat inputFrame, Mat frameResult,Scalar rectColor,Scalar contColor,int erodeSize,out int result)
+        private void ContourDetection(Mat inputFrame, Mat frameResult,Mat frameMask,Scalar rectColor,Scalar contColor,int erodeSize,out int result)
         {
             var element = new Mat(erodeSize, erodeSize, MatType.CV_8UC1);
             Cv2.Erode(inputFrame, inputFrame, element);
             Point[][] contours;
             HierarchyIndex[] hierarchyIndices;
             Cv2.FindContours(inputFrame, out contours, out hierarchyIndices,
-                RetrievalModes.External,
+                RetrievalModes.List,
                 ContourApproximationModes.ApproxTC89KCOS);
-          //  Cv2.DrawContours(frameResult, contours, -1, contColor);
+            List<Point[]> maskList;
+            maskList = new List<Point[]>();
+
+
+            var armySizeMin = 8;//18
+            var armySizeMax = 30;//65
+
+            // Cv2.DrawContours(frameResult, contours, -1, contColor);
+            int index = 0;
             int temp = 0;
+            result = temp;
             foreach (Point[] contour in contours)
             {
+                if (hierarchyIndices[index].Child != -1)
+                    return;
+                index++;
                 Rect rect = Cv2.BoundingRect(contour);
                 RotatedRect rotRect = Cv2.MinAreaRect(contour);
                 //var approx = Cv2.ApproxPolyDP(contour, 0.01 * Cv2.ArcLength(contour, true), true);
                 //if (rect.Height * rect.Width > 20 && rect.Height * rect.Width < 1200)
-                if (rotRect.Size.Height > 25 && rotRect.Size.Width > 25 
-                    && rotRect.Size.Height < 70 && rotRect.Size.Width < 70)
+                if (rotRect.Size.Height > armySizeMin &&
+                    rotRect.Size.Width > armySizeMin &&
+                    rotRect.Size.Height < armySizeMax &&
+                    rotRect.Size.Width < armySizeMax)
                 {
-                    Cv2.Ellipse(frameResult, rotRect, rectColor, 3, LineTypes.AntiAlias);
+                    Cv2.Ellipse(frameResult, rotRect, rectColor, 2, LineTypes.AntiAlias);
                     //Cv2.Rectangle(frameResult, rect, rectColor);
                     temp++;
+                    var pts = rotRect.Points();
+                    maskList.Add(contour);
+
+                    Cv2.Ellipse(frameMask, rotRect, Scalar.Black, -1);
+                    Cv2.DrawContours(frameMask, maskList, -1, Scalar.Black, -1);
+                }
+                else if
+                    (rotRect.Size.Height < armySizeMax && rotRect.Size.Width > armySizeMax ||
+                    rotRect.Size.Height > armySizeMax && rotRect.Size.Width < armySizeMax)
+                {
+                    Cv2.Ellipse(frameResult, rotRect, rectColor, 2, LineTypes.AntiAlias);
+                    var biggerSize = rotRect.Size.Height;
+                    if(rotRect.Size.Width>rotRect.Size.Height)
+                        biggerSize=rotRect.Size.Width;
+                    maskList.Add(contour);
+                    Cv2.Ellipse(frameMask, rotRect, Scalar.Black, -1);
+                    Cv2.DrawContours(frameMask, maskList, -1, Scalar.Black, -1);
+                    var armyAmount = biggerSize / 20;//35
+                    var iarmyAmount = (int)Math.Round(armyAmount, MidpointRounding.AwayFromZero);
+                    if (iarmyAmount == 1)
+                        iarmyAmount++;
+                    temp = temp + iarmyAmount;
+                }
+                else if
+                        (rotRect.Size.Height > armySizeMax ||
+                        rotRect.Size.Width > armySizeMax)
+                {
+
+                    Cv2.Rectangle(frameResult, rect, rectColor, 2, LineTypes.AntiAlias);
                 }
             }
             result = temp;
@@ -218,7 +355,7 @@ namespace ShogunVS.Services
         {
             var detectorParams = new SimpleBlobDetector.Params
             {
-                MinDistBetweenBlobs = 10, // 10 pixels between blobs
+                MinDistBetweenBlobs = 1, // 10 pixels between blobs
                 MinRepeatability = 1,
 
                 //MinThreshold = 100,
@@ -228,14 +365,14 @@ namespace ShogunVS.Services
                 //FilterByArea = false,
                 FilterByArea = true,
                 MinArea = 30, // 10 pixels squared
-                MaxArea = 500,
+                MaxArea = 5000,
 
                 FilterByCircularity = false,
                 //FilterByCircularity = true,
                 //MinCircularity = 0.001f,
 
-              // FilterByConvexity = false,
-                FilterByConvexity = true,
+               FilterByConvexity = true,
+               // FilterByConvexity = ,
                 MinConvexity = 0.001f,
                 MaxConvexity = 10,
 
@@ -252,6 +389,7 @@ namespace ShogunVS.Services
             foreach (var keyPoint in keyPoints)
             {
                 Console.WriteLine("X: {0}, Y: {1}", keyPoint.Pt.X, keyPoint.Pt.Y);
+           Console.WriteLine(keyPoint.Size.ToString());
             }
 
             Cv2.DrawKeypoints(

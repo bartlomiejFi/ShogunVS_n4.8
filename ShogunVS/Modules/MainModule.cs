@@ -15,6 +15,7 @@ namespace ShogunVS.Modules
         public void OnInitialized(IContainerProvider containerProvider)
         {
             var regionManager = containerProvider.Resolve<IRegionManager>();
+            regionManager.RequestNavigate("ContentRegion", "ServiceScreen");
             regionManager.RequestNavigate("ContentRegion", "Camera");
             regionManager.RegisterViewWithRegion("TopBar", typeof(TopBar));
         }
