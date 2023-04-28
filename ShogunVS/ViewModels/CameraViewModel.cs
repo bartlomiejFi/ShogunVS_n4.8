@@ -1,17 +1,15 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
-using ShogunVS.Models;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Ioc;
-using System;
+using ShogunVS.Models;
+using ShogunVS.Services;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ShogunVS.Services;
 
 namespace ShogunVS.ViewModels
 {
@@ -23,7 +21,7 @@ namespace ShogunVS.ViewModels
 
         private List<CameraDevice> _cameraList;
 
-        private bool streamingActive;
+        private ConnectionStatus _camStatus;
 
         private ImageSource _imageSource;
 
@@ -49,6 +47,11 @@ namespace ShogunVS.ViewModels
 
         private int _fifthArmyNo;
 
+        private int _neutralArmyNo;
+
+        private int _reusltsNo;
+
+        private Results[] ResultsArray = new Results[3];
         #endregion
 
         #region Constructors
@@ -58,12 +61,13 @@ namespace ShogunVS.ViewModels
         {
             results = container.Resolve<Results>();
             imageProcessing = container.Resolve<ImageProcessing>();
-
-
-
+            yeelightControl = container.Resolve<YeelightControl>();
 
 
             StartStopStreamingCommand = new DelegateCommand(StartStopStreamingInit);
+            BlueLightOnCommand = new DelegateCommand(() => yeelightControl.StartBlueLight(4000));
+            ExitCommand = new DelegateCommand(Exit);
+
             CameraList = CamerasDetector.CameraDevices();
             cameraStreaming = container.Resolve<CameraStreaming>();
             // cameraStreaming = new CameraStreaming();
@@ -81,9 +85,15 @@ namespace ShogunVS.ViewModels
 
         public DelegateCommand StartStopStreamingCommand { get; private set; }
 
+        public DelegateCommand BlueLightOnCommand { get; private set; }
+
+        public DelegateCommand ExitCommand { get; private set; }
+
         private CameraStreaming cameraStreaming { get; set; }
 
         private ImageProcessing imageProcessing { get; set; }
+
+        private YeelightControl yeelightControl { get; set; }
 
         private Results results { get; set; }
 
@@ -157,7 +167,7 @@ namespace ShogunVS.ViewModels
             set { SetProperty(ref _fifthArmyNo, value); }
         }
 
-
+        public int NeutralArmyNo { get => _neutralArmyNo; set => SetProperty(ref _neutralArmyNo, value); }
 
         public CameraDevice SelectedCamera
         {
@@ -179,6 +189,7 @@ namespace ShogunVS.ViewModels
 
             set { SetProperty(ref _imageSource, value); }
         }
+
         public WriteableBitmap WriteableBitmap
         {
             get { return _writableBitmap; }
@@ -186,54 +197,71 @@ namespace ShogunVS.ViewModels
             set { SetProperty(ref _writableBitmap, value); }
         }
 
+        public ConnectionStatus CamStatus { get => _camStatus; set => SetProperty(ref _camStatus, value); }
+
         #endregion
 
         #region Methods
 
         private async void StartStopStreamingInit()
         {
-            if (streamingActive)
+            if (CamStatus == ConnectionStatus.Connected)
             {
                 await cameraStreaming.StopStreaming();
-               // cameraStreaming.OnFrameUpdate -= OnFrameUpdate;
-                streamingActive = false;
+                cameraStreaming.OnFrameUpdate -= OnFrameUpdate;
+                CamStatus = ConnectionStatus.Disconnected;
             }
             else
             {
                 await cameraStreaming.StartStreaming(SelectedCamera.OpenCvId);
-               // cameraStreaming.OnFrameUpdate += OnFrameUpdate;
-                streamingActive = true;
+                cameraStreaming.OnFrameUpdate += OnFrameUpdate;
+                CamStatus = ConnectionStatus.Connected;
             }
         }
 
-        private void OnFrameUpdate(object sender,Mat newFrame)
+        private void OnFrameUpdate(object sender, Mat newFrame)
         {
-            var bmp = newFrame.ToWriteableBitmap(); 
-            bmp.Freeze();
-            WriteableBitmap = bmp;         
+            //var bmp = newFrame.ToWriteableBitmap();
+            //bmp.Freeze();
+            //WriteableBitmap = bmp;
         }
 
         private void OnProcessedFramesUpdate(object sender, ProcessedFrames processedFrames)
         {
-            var bmp = processedFrames.GameResult.ToWriteableBitmap();
+            var bmp = processedFrames.CleanFrame.ToWriteableBitmap();
             bmp.Freeze();
             WriteableBitmap = bmp;
 
-            FirstArmyNo = results.first.armyNo;
-            FirstColor = results.first.color;
+            ResultsArray[2] = this.ResultsArray[1];
+            ResultsArray[1] = this.ResultsArray[0];
+            ResultsArray[0] = results;
 
-            SecondArmyNo = results.second.armyNo;
-            SecondColor = results.second.color;
+            if (ResultsArray[0] == ResultsArray[1] && ResultsArray[0] == ResultsArray[2])
+            {
+                FirstArmyNo = results.first.armyNo;
+                FirstColor = results.first.color;
 
-            ThirdArmyNo = results.third.armyNo;
-            ThirdColor = results.third.color;
+                SecondArmyNo = results.second.armyNo;
+                SecondColor = results.second.color;
 
-            FourthArmyNo = results.fourth.armyNo;
-            FourthColor = results.fourth.color;
+                ThirdArmyNo = results.third.armyNo;
+                ThirdColor = results.third.color;
 
-            FifthArmyNo = results.fifth.armyNo;
-            FifthColor = results.fifth.color;
+                FourthArmyNo = results.fourth.armyNo;
+                FourthColor = results.fourth.color;
+
+                FifthArmyNo = results.fifth.armyNo;
+                FifthColor = results.fifth.color;
+
+                NeutralArmyNo = results.neutral.armyNo;
+            }
         }
+
+        private void Exit()
+        {
+            Application.Current.MainWindow.Close();
+        }
+
         #endregion
     }
 }

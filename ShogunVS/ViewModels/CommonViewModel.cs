@@ -41,7 +41,7 @@ namespace ShogunVS.ViewModels
         protected IEventAggregator EventAggregator { get; set; }
         protected IContainerExtension Container { get; set; }
 
-         protected FiltersSettings FiltersSettings { get; set; }
+        protected FiltersSettings FiltersSettings { get; set; }
 
 
         public DelegateCommand<string> NavigateCommand { get; protected set; }

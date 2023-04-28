@@ -2,77 +2,32 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"       
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"         
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"    
+             xmlns:local="clr-namespace:ShogunVS.Converters"
              prism:ViewModelLocator.AutoWireViewModel="True"
              TextElement.Foreground="white"
              Background="{DynamicResource MaterialDesignPaper}"
-             Foreground="Black"
+             Foreground="Black"         
              >
     <UserControl.Resources>
-        <Style x:Key="ResultBox" TargetType="Button">
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="54px"/>
-            <Setter Property="FontWeight" Value="Thin"/>
-            <Setter Property="Height" Value="150"/>
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Background" Value="PaleVioletRed"/>
-            <Setter Property="IsHitTestVisible" Value="false"/>
-            <Setter Property="Foreground" Value="Orange"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="Orange" BorderThickness="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
-        <Style x:Key="StandardButton" TargetType="Button">
-            <Setter Property="Margin" Value="6"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="14px"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="IsHitTestVisible" Value="true"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="NavajoWhite" BorderThickness="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
+        <local:StatusColorConverter x:Key="StatusColorConverter"/>
+        <local:ConnectionColorConverter x:Key="ConnectionColorConverter"/>
+        <local:ConnectionIconConverter x:Key="ConnectionIconConverter"/>
     </UserControl.Resources>
     <Border
-            VerticalAlignment="Stretch"
-            HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        HorizontalAlignment="Stretch"
         BorderBrush="LightGray"
         BorderThickness="0"
-                >
+        >
         <Border.Background>
             <ImageBrush
-                    ImageSource="{Binding WriteableBitmap}"
-                    Stretch="Fill"/>
+                ImageSource="{Binding WriteableBitmap}"
+                Stretch="Fill"
+                />
         </Border.Background>
         <DockPanel VerticalAlignment="Stretch"
-                    >
+                   >
             <Grid VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -121,17 +76,16 @@
                     Grid.Row="6"
                     Grid.Column="0"
                     Background="DarkGreen"
-                    Content="{Binding SecondArmyNo}"
+                    Content="{Binding NeutralArmyNo}"
                     />
             </Grid>
-            <!--<Image
-                 Source="{Binding WriteableBitmap}"
-                Height="800"
-                Width="600"
-                />-->
             <Grid VerticalAlignment="Bottom"
                   HorizontalAlignment="Right">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
@@ -142,32 +96,77 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Button
-                Style="{StaticResource StandardButton}"
-                Grid.Column="0"
-                Grid.Row="1"
-                Content="SETTINGS"
-                Command="{Binding NavigateCommand}"
-                CommandParameter="ServiceScreen"
-                />
+                    Style="{StaticResource StandardButton}"
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Command="{Binding ExitCommand}"
+                    CommandParameter="ServiceScreen">
+                    <Button.Content>
+                        <materialDesign:PackIcon
+                            Kind="ExitToApp"
+                            Height="18"
+                            Width="18"
+                        />
+                    </Button.Content>
+                </Button>
                 <Button
-                Style="{StaticResource StandardButton}"   
-                Grid.Column="1"
+                Grid.Column="2"
                 Grid.Row="1"
-                Content="POWER"
+                Background="{Binding CamStatus, Converter= {StaticResource ConnectionColorConverter}}"             
+                Style="{StaticResource StandardButton}"
                 Command="{Binding StartStopStreamingCommand}"
-                />
+                >
+                    <Button.Content>
+                        <materialDesign:PackIcon
+                        Kind="{Binding CamStatus, Converter= {local:ConnectionIconConverter StatusType=Camera}}"
+                        Height="18"
+                        Width="18"
+                        />
+                    </Button.Content>
+                </Button>
+                <Button
+                Style="{StaticResource StandardButton}"
+                Grid.Column="3"
+                Grid.Row="1"
+                    Command="{Binding AzizCommand}">
+                    <Button.Content>
+                        <materialDesign:PackIcon
+                        Kind="Lightbulb"
+                        Height="18"
+                        Width="18"
+                        />
+                    </Button.Content>
+                </Button>
+                <Button
+                    Style="{StaticResource StandardButton}"
+                    Grid.Column="4"
+                    Grid.Row="1"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="ServiceScreen"
+                    >
+                <Button.Content>
+                        <materialDesign:PackIcon
+                        Kind="Cog"
+                        Height="18"
+                        Width="18"
+                        />
+                    </Button.Content>
+                </Button>
                 <ComboBox 
-                    Grid.Column="2"
-                 Grid.Row="1"
-                 ItemsSource="{Binding CameraList}"
-                 SelectedItem="{Binding SelectedCamera}"
-                 DisplayMemberPath="Name"
-                          FontSize="22"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    ItemsSource="{Binding CameraList}"
+                    SelectedItem="{Binding SelectedCamera}"
+                    DisplayMemberPath="Name"
+                    FontSize="18"
                     FontFamily="Verdana"
                     FontWeight="Medium"
-                     Background="NavajoWhite"    
+                    Background="DarkSeaGreen"    
                     BorderBrush="Black"
-                          BorderThickness="3"
+                    BorderThickness="0"
+                    Margin="10"
                       />
             </Grid>
         </DockPanel>

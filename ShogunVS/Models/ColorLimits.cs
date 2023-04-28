@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ShogunVS.Models
+﻿namespace ShogunVS.Models
 {
     public class ColorLimits
     {
@@ -19,5 +13,6 @@ namespace ShogunVS.Models
         public int ValMin { get; set; } = 0;
 
         public int ValMax { get; set; } = 0;
+
     }
 }

@@ -6,24 +6,22 @@ using Prism.Ioc;
 using ShogunVS.Models;
 using ShogunVS.Services;
 using ShogunVS.Settings;
-using ShogunVS.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace ShogunVS.ViewModels
 {
-  public  class ServiceScreenViewModel :CommonViewModel
+    public class ServiceScreenViewModel : CommonViewModel
     {
         #region Fields
 
         private WriteableBitmap _writableBitmapRESULT;
 
         private WriteableBitmap _writableBitmapCOLOR;
+
+        private ProcessedFrames _processedFrames;
 
         private int _hueMin;
 
@@ -68,12 +66,16 @@ namespace ShogunVS.ViewModels
             results = container.Resolve<Results>();
             FramesList = typeof(ProcessedFrames).GetFields().Select(x => x.Name).Where(i => i.Contains("Game") == false).ToList();
 
-            SelectedFrame = FramesList[0];
-            SelectedFrame = FramesList[1];
-            SelectedFrame = FramesList[2];
-            SelectedFrame = FramesList[3];
-            SelectedFrame = FramesList[4];
-            SelectedFrame = FramesList[5];
+            foreach (var item in FramesList)
+            {
+                SelectedFrame = FramesList[FramesList.IndexOf(item)];
+            }
+            //SelectedFrame = FramesList[0];
+            //SelectedFrame = FramesList[1];
+            //SelectedFrame = FramesList[2];
+            //SelectedFrame = FramesList[3];
+            //SelectedFrame = FramesList[4];
+            //SelectedFrame = FramesList[5];
             SelectedFrame = FramesList.FirstOrDefault();
 
 
@@ -84,14 +86,15 @@ namespace ShogunVS.ViewModels
             // Commands.
             SaveSettingsCommand = new DelegateCommand(SaveSettings);
             LoadSettingsCommand = new DelegateCommand(LoadSettings);
+            SelectROICommand = new DelegateCommand(SelectROI);
         }
 
         #endregion
 
         #region Properties
-
         public DelegateCommand SaveSettingsCommand { get; private set; }
         public DelegateCommand LoadSettingsCommand { get; private set; }
+        public DelegateCommand SelectROICommand { get; private set; }
 
         public FiltersSettings Settings
         {
@@ -106,11 +109,13 @@ namespace ShogunVS.ViewModels
             set { SetProperty(ref _framesList, value); }
         }
 
-       public string SelectedFrame
+        public string SelectedFrame
         {
             get { return _selectedFrame; }
 
-            set { SetProperty(ref _selectedFrame, value, LoadSettings);
+            set
+            {
+                SetProperty(ref _selectedFrame, value, LoadSettings);
             }
         }
 
@@ -119,7 +124,9 @@ namespace ShogunVS.ViewModels
         {
             get { return _hueMin; }
 
-            set { SetProperty(ref _hueMin, value, SendSettings);
+            set
+            {
+                SetProperty(ref _hueMin, value, SendSettings);
             }
         }
 
@@ -127,7 +134,9 @@ namespace ShogunVS.ViewModels
         {
             get { return _hueMax; }
 
-            set { SetProperty(ref _hueMax, value, SendSettings);
+            set
+            {
+                SetProperty(ref _hueMax, value, SendSettings);
             }
         }
 
@@ -135,14 +144,16 @@ namespace ShogunVS.ViewModels
         {
             get { return _satMin; }
 
-            set { SetProperty(ref _satMin, value, SendSettings);  }
+            set { SetProperty(ref _satMin, value, SendSettings); }
         }
 
         public int SatMax
         {
             get { return _satMax; }
 
-            set { SetProperty(ref _satMax, value, SendSettings);
+            set
+            {
+                SetProperty(ref _satMax, value, SendSettings);
             }
         }
 
@@ -150,7 +161,9 @@ namespace ShogunVS.ViewModels
         {
             get { return _valMin; }
 
-            set { SetProperty(ref _valMin, value, SendSettings);
+            set
+            {
+                SetProperty(ref _valMin, value, SendSettings);
             }
         }
 
@@ -158,7 +171,9 @@ namespace ShogunVS.ViewModels
         {
             get { return _valMax; }
 
-            set { SetProperty(ref _valMax, value, SendSettings);
+            set
+            {
+                SetProperty(ref _valMax, value, SendSettings);
             }
         }
 
@@ -237,10 +252,17 @@ namespace ShogunVS.ViewModels
 
         #region Methods
 
+        private void SelectROI()
+        {
+            imageProcessing.FiltersSettings.ROI = Cv2.SelectROI(_processedFrames.GameRegion);
+            FiltersSettings.Save();
+        }
+
         private void OnProcessedFramesUpdate(object sender, ProcessedFrames processedFrames)
         {
             try
             {
+                _processedFrames = processedFrames;
                 var bmp = processedFrames.BlackPlayer.ToWriteableBitmap();
                 switch (SelectedFrame)
                 {
@@ -262,6 +284,27 @@ namespace ShogunVS.ViewModels
                     case "GreenNeutral":
                         bmp = processedFrames.GreenNeutral.ToWriteableBitmap();
                         break;
+                    case "YellowMask":
+                        bmp = processedFrames.YellowMask.ToWriteableBitmap();
+                        break;
+                    case "BlackMask":
+                        bmp = processedFrames.BlackMask.ToWriteableBitmap();
+                        break;
+                    case "BlueMask":
+                        bmp = processedFrames.BlueMask.ToWriteableBitmap();
+                        break;
+                    case "PurpleMask":
+                        bmp = processedFrames.PurpleMask.ToWriteableBitmap();
+                        break;
+                    case "RedMask":
+                        bmp = processedFrames.RedMask.ToWriteableBitmap();
+                        break;
+                    case "GreenMask":
+                        bmp = processedFrames.GreenMask.ToWriteableBitmap();
+                        break;
+                    case "MasksSummary":
+                        bmp = processedFrames.MasksSummary.ToWriteableBitmap();
+                        break;
                 }
                 bmp.Freeze();
                 WriteableBitmapCOLOR = bmp;
@@ -277,72 +320,73 @@ namespace ShogunVS.ViewModels
                 RedArmyNo = results.RedArmyNo;
                 PurpleArmyNo = results.PurpleArmyNo;
                 GreenArmyNo = results.GreenArmyNo;
-                
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
         }
+
         private void SendSettings()
         {
             try
-            { 
-            switch (SelectedFrame)
             {
-                case "YellowPlayer":
-                    imageProcessing.YellowActLimits.ValMin = ValMin;
-                    imageProcessing.YellowActLimits.ValMax = ValMax;
-                    imageProcessing.YellowActLimits.HueMin = HueMin;
-                    imageProcessing.YellowActLimits.HueMax = HueMax;
-                    imageProcessing.YellowActLimits.SatMin = SatMin;
-                    imageProcessing.YellowActLimits.SatMax = SatMax;
-                    break;
-                case "BlackPlayer":
-                    imageProcessing.BlackActLimits.ValMin = ValMin;
-                    imageProcessing.BlackActLimits.ValMax = ValMax;
-                    imageProcessing.BlackActLimits.HueMin = HueMin;
-                    imageProcessing.BlackActLimits.HueMax = HueMax;
-                    imageProcessing.BlackActLimits.SatMin = SatMin;
-                    imageProcessing.BlackActLimits.SatMax = SatMax;
-                    break;
-                case "BluePlayer":
-                    imageProcessing.BlueActLimits.ValMin = ValMin;
-                    imageProcessing.BlueActLimits.ValMax = ValMax;
-                    imageProcessing.BlueActLimits.HueMin = HueMin;
-                    imageProcessing.BlueActLimits.HueMax = HueMax;
-                    imageProcessing.BlueActLimits.SatMin = SatMin;
-                    imageProcessing.BlueActLimits.SatMax = SatMax;
-                    break;
-                case "PurplePlayer":
-                    imageProcessing.PurpleActLimits.ValMin = ValMin;
-                    imageProcessing.PurpleActLimits.ValMax = ValMax;
-                    imageProcessing.PurpleActLimits.HueMin = HueMin;
-                    imageProcessing.PurpleActLimits.HueMax = HueMax;
-                    imageProcessing.PurpleActLimits.SatMin = SatMin;
-                    imageProcessing.PurpleActLimits.SatMax = SatMax;
-                    break;
-                case "RedPlayer":
-                    imageProcessing.RedActLimits.ValMin = ValMin;
-                    imageProcessing.RedActLimits.ValMax = ValMax;
-                    imageProcessing.RedActLimits.HueMax = HueMin;
-                    imageProcessing.RedActLimits.HueMin = HueMax;
-                    imageProcessing.RedActLimits.SatMin = SatMin;
-                    imageProcessing.RedActLimits.SatMax = SatMax;
-                    break;
-                case "GreenNeutral":
-                    imageProcessing.GreenActLimits.ValMin = ValMin;
-                    imageProcessing.GreenActLimits.ValMax = ValMax;
-                    imageProcessing.GreenActLimits.HueMin = HueMin;
-                    imageProcessing.GreenActLimits.HueMax = HueMax;
-                    imageProcessing.GreenActLimits.SatMin = SatMin;
-                    imageProcessing.GreenActLimits.SatMax = SatMax;
-                    break;
-            }
+                switch (SelectedFrame)
+                {
+                    case "YellowPlayer":
+                        imageProcessing.YellowActLimits.ValMin = ValMin;
+                        imageProcessing.YellowActLimits.ValMax = ValMax;
+                        imageProcessing.YellowActLimits.HueMin = HueMin;
+                        imageProcessing.YellowActLimits.HueMax = HueMax;
+                        imageProcessing.YellowActLimits.SatMin = SatMin;
+                        imageProcessing.YellowActLimits.SatMax = SatMax;
+                        break;
+                    case "BlackPlayer":
+                        imageProcessing.BlackActLimits.ValMin = ValMin;
+                        imageProcessing.BlackActLimits.ValMax = ValMax;
+                        imageProcessing.BlackActLimits.HueMin = HueMin;
+                        imageProcessing.BlackActLimits.HueMax = HueMax;
+                        imageProcessing.BlackActLimits.SatMin = SatMin;
+                        imageProcessing.BlackActLimits.SatMax = SatMax;
+                        break;
+                    case "BluePlayer":
+                        imageProcessing.BlueActLimits.ValMin = ValMin;
+                        imageProcessing.BlueActLimits.ValMax = ValMax;
+                        imageProcessing.BlueActLimits.HueMin = HueMin;
+                        imageProcessing.BlueActLimits.HueMax = HueMax;
+                        imageProcessing.BlueActLimits.SatMin = SatMin;
+                        imageProcessing.BlueActLimits.SatMax = SatMax;
+                        break;
+                    case "PurplePlayer":
+                        imageProcessing.PurpleActLimits.ValMin = ValMin;
+                        imageProcessing.PurpleActLimits.ValMax = ValMax;
+                        imageProcessing.PurpleActLimits.HueMin = HueMin;
+                        imageProcessing.PurpleActLimits.HueMax = HueMax;
+                        imageProcessing.PurpleActLimits.SatMin = SatMin;
+                        imageProcessing.PurpleActLimits.SatMax = SatMax;
+                        break;
+                    case "RedPlayer":
+                        imageProcessing.RedActLimits.ValMin = ValMin;
+                        imageProcessing.RedActLimits.ValMax = ValMax;
+                        imageProcessing.RedActLimits.HueMax = HueMin;
+                        imageProcessing.RedActLimits.HueMin = HueMax;
+                        imageProcessing.RedActLimits.SatMin = SatMin;
+                        imageProcessing.RedActLimits.SatMax = SatMax;
+                        break;
+                    case "GreenNeutral":
+                        imageProcessing.GreenActLimits.ValMin = ValMin;
+                        imageProcessing.GreenActLimits.ValMax = ValMax;
+                        imageProcessing.GreenActLimits.HueMin = HueMin;
+                        imageProcessing.GreenActLimits.HueMax = HueMax;
+                        imageProcessing.GreenActLimits.SatMin = SatMin;
+                        imageProcessing.GreenActLimits.SatMax = SatMax;
+                        break;
+                }
 
-            imageProcessing.GaussianBlurSize = GaussianBlurSize;
-            FiltersSettings = Settings;
-            imageProcessing.FiltersSettings = Settings;
+                imageProcessing.GaussianBlurSize = GaussianBlurSize;
+                FiltersSettings = Settings;
+                imageProcessing.FiltersSettings = Settings;
             }
             catch (Exception e)
             {
@@ -424,11 +468,11 @@ namespace ShogunVS.ViewModels
                 {
                     case "YellowPlayer":
                         ValMin = Settings.Yellow.ValMin;
-                        ValMax=Settings.Yellow.ValMax ;
-                        HueMin=Settings.Yellow.HueMin ;
-                        HueMax=Settings.Yellow.HueMax  ;
-                        SatMin=Settings.Yellow.SatMin  ;
-                        SatMax=Settings.Yellow.SatMax ;
+                        ValMax = Settings.Yellow.ValMax;
+                        HueMin = Settings.Yellow.HueMin;
+                        HueMax = Settings.Yellow.HueMax;
+                        SatMin = Settings.Yellow.SatMin;
+                        SatMax = Settings.Yellow.SatMax;
                         break;
                     case "BlackPlayer":
                         ValMin = Settings.Black.ValMin;

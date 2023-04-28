@@ -3,261 +3,193 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"       
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              prism:ViewModelLocator.AutoWireViewModel="True"
              TextElement.Foreground="white"
              Background="{DynamicResource MaterialDesignPaper}"
              Foreground="Black">
-    <UserControl.Resources>
-        <Style x:Key="ResultBox" TargetType="Button">
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="28px"/>
-            <Setter Property="FontWeight" Value="Thin"/>
-            <Setter Property="Height" Value="100"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Background" Value="PaleVioletRed"/>
-            <Setter Property="IsHitTestVisible" Value="false"/>
-            <Setter Property="Foreground" Value="Orange"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="Orange" BorderThickness="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
-        <Style x:Key="StandardButton" TargetType="Button">
-            <Setter Property="Margin" Value="6"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="14px"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="IsHitTestVisible" Value="true"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="NavajoWhite" BorderThickness="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
-        <Style x:Key="StandardLabel" TargetType="Label">
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="32px"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Foreground" Value="NavajoWhite"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
-        <Style x:Key="Textboxclassic" TargetType="TextBox">
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="FontFamily" Value="Verdana"/>
-            <Setter Property="FontSize" Value="18px"/>
-            <Setter Property="FontWeight" Value="Thin"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Background" Value="NavajoWhite"/>
-            <Setter Property="IsHitTestVisible" Value="true"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4" />
-                </Style>
-            </Style.Resources>
-        </Style>
-    </UserControl.Resources>
-    <StackPanel VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch">
-        <Grid
+    <Grid VerticalAlignment="Stretch"
+          HorizontalAlignment="Left">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch">
+            <Grid
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <Image 
-            Grid.Column="0"
-            Grid.Row="0"
-            Source="{Binding WriteableBitmapRESULT}"   
-            VerticalAlignment="Top"
-            />
-            <Image 
-            Grid.Column="1"
-            Grid.Row="0"
-            Source="{Binding WriteableBitmapCOLOR}"           
-            VerticalAlignment="Top"
-            />
-            <Grid VerticalAlignment="Top"
-                  Grid.Column="0"
-                  Grid.Row="1"
-                  Grid.ColumnSpan="2"
-                  Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Button 
+                <Image 
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Source="{Binding WriteableBitmapRESULT}"   
+                    VerticalAlignment="Top"
+                    />
+                <Image 
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Source="{Binding WriteableBitmapCOLOR}"           
+                    VerticalAlignment="Top"
+                    />
+                <Grid VerticalAlignment="Top"
+                HorizontalAlignment="Center"
+                Grid.Column="0"
+                Grid.Row="1"
+                Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"  
                     Grid.Column="0"
                     Background="Red"
                     Content="{Binding RedArmyNo}"
                     />
-                <Button 
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"
                     Grid.Column="1"
                     Background="Blue"
                     Content="{Binding BlueArmyNo}"
                     />
-                <Button 
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"
                     Grid.Column="2"
                     Background="Black"
                     Content="{Binding BlackArmyNo}"
                     />
-                <Button 
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"
                     Grid.Column="3"
                     Background="Purple"
                     Content="{Binding PurpleArmyNo}"
                     />
-                <Button 
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"
                     Grid.Column="4"              
                     Background="Yellow"
                     Content="{Binding YellowArmyNo}"
                     />
-                <Button 
+                    <Button 
                     Style="{StaticResource ResultBox}"
                     Grid.Row="0"
                     Grid.Column="5"
                     Background="DarkGreen"
                     Content="{Binding GreenArmyNo}"
                     />
-            </Grid>
-            <StackPanel
+                </Grid>
+                <StackPanel
                 Grid.Column="2"
                 Grid.Row="0">
-
-                <DockPanel>
-                    <Label
-                        Style="{StaticResource StandardLabel}"
-                    Content="H"/>
-                    <xctk:RangeSlider
-                        VerticalAlignment="Center"
-                Background="Transparent"
-                Width="300"
-                Margin="0"
-                Minimum="0"
-                Maximum="179"
-                LowerValue="{Binding HueMin,Mode=TwoWay}"        
-                HigherValue="{Binding HueMax,Mode=TwoWay}"
-                />
-                </DockPanel>
-                <DockPanel>
-                    <Label
-                        Style="{StaticResource StandardLabel}"
-                    Content="S"/>
-                    <xctk:RangeSlider
-                Width="300"
-                Margin="20"
-                Minimum="0"
-                Maximum="255"
-                LowerValue="{Binding SatMin,Mode=TwoWay}"        
-                HigherValue="{Binding SatMax,Mode=TwoWay}"
-                />
-                </DockPanel>
-                <DockPanel>
-                    <Label
-                        Style="{StaticResource StandardLabel}"
-                    Content="V"/>
-                    <xctk:RangeSlider  
-                Width="300"
-                Margin="20"
-                Minimum="0"
-                Maximum="255"
-                LowerValue="{Binding ValMin,Mode=TwoWay}"        
-                HigherValue="{Binding ValMax,Mode=TwoWay}"
-                />
-                </DockPanel>
-                <DockPanel>
-                    <Button
-                HorizontalAlignment="Center"                   
-                Command="{Binding LoadSettingsCommand}"
-                    Style="{StaticResource StandardButton }"
-                    Width="120"
-                Height="30"
-                Content="LOAD"
-                ToolTip="Load settings from file."
-            />
-                    <Button
-                    HorizontalAlignment="Right"
-                Command="{Binding SaveSettingsCommand}"
-                Width="120"
-                Height="30"
-                Content="SAVE"
-                Style="{StaticResource StandardButton }"
-                        ToolTip="Save settings to file."
-            />
-                </DockPanel>
-                <ComboBox
-                 ItemsSource="{Binding FramesList}"
-                 SelectedItem="{Binding SelectedFrame}"
-                      VerticalContentAlignment="Center"
-                          HorizontalContentAlignment="Center"
-                          FontSize="22"
-                    FontFamily="Verdana"
-                    FontWeight="Medium"
-                      Margin="6"
-                      Width="350"
-                     Background="NavajoWhite"    
-                    BorderBrush="Black"
-                          BorderThickness="3"
-                      />
-                <StackPanel>
+                    <DockPanel>
+                        <Label
+                            Style="{StaticResource StandardLabel}"
+                            Content="H"/>
+                            <xctk:RangeSlider
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Width="300"
+                            Margin="0"
+                            Minimum="0"
+                            Maximum="179"
+                            LowerValue="{Binding HueMin,Mode=TwoWay}"        
+                            HigherValue="{Binding HueMax,Mode=TwoWay}"
+                                />
+                    </DockPanel>
+                    <DockPanel>
+                        <Label                      
+                            Style="{StaticResource StandardLabel}"                      
+                            Content="S"/>
+                            <xctk:RangeSlider
+                            Width="300"
+                            Margin="20"
+                            Minimum="0"
+                            Maximum="255"
+                            LowerValue="{Binding SatMin,Mode=TwoWay}"                           
+                            HigherValue="{Binding SatMax,Mode=TwoWay}"
+                            />
+                    </DockPanel>
+                    <DockPanel>
+                            <Label
+                            Style="{StaticResource StandardLabel}"
+                            Content="V"/>
+                                <xctk:RangeSlider  
+                            Width="300"
+                            Margin="20"
+                            Minimum="0"
+                            Maximum="255"
+                            LowerValue="{Binding ValMin,Mode=TwoWay}"        
+                            HigherValue="{Binding ValMax,Mode=TwoWay}"
+                            />
+                    </DockPanel>
+                    <DockPanel HorizontalAlignment="Center">
+                        <Button                    
+                            HorizontalAlignment="Center"                   
+                            Command="{Binding LoadSettingsCommand}"
+                            Style="{StaticResource StandardButton }"
+                            Content="LOAD"
+                            ToolTip="Load settings from file."
+                            Margin="6"
+                            />
+                        <Button
+                            HorizontalAlignment="Right"
+                            Command="{Binding SaveSettingsCommand}"
+                            Content="SAVE"
+                            Style="{StaticResource StandardButton }"
+                            ToolTip="Save settings to file."
+                            Margin="6"                       
+                            />
+                        <Button               
+                            Style="{StaticResource StandardButton}"                          
+                            ToolTip="Select ROI."
+                            Grid.Column="2"
+                            Grid.Row="1"                      
+                            Command="{Binding SelectROICommand}">
+                            <Button.Content>
+                                <materialDesign:PackIcon                           
+                                    Kind="SelectGroup"
+                                    Height="40"
+                                    Width="40"
+                                    />
+                            </Button.Content>
+                        </Button>
+                    </DockPanel>
+                    <ComboBox  
+                        ItemsSource="{Binding FramesList}"
+                        SelectedItem="{Binding SelectedFrame}"
+                        VerticalContentAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        FontSize="18"
+                        FontFamily="Verdana"
+                        FontWeight="Medium"
+                        Margin="10"
+                        Background="DarkSeaGreen"    
+                        BorderBrush="Black"
+                        BorderThickness="0"                     
+                        />
+                    <!--<StackPanel>
                     <Label
                         Style="{StaticResource StandardLabel}"
                     Content="GaussianBlurSize"
@@ -273,20 +205,27 @@
                         Interval="2"
                         IsSnapToTickEnabled="True"
                 Value="{Binding GaussianBlurSize,Mode=TwoWay}"
-                    />                    
+                    />
+                </StackPanel>-->
                 </StackPanel>
-
-            </StackPanel>
-        </Grid>
+            </Grid>
+        </StackPanel>
         <Button
-                Content="BACK"
-                Command="{Binding GoBackCommand}"
+            Command="{Binding GoBackCommand}"
             Style="{StaticResource StandardButton }"
-                Margin="10,50,10,10"
-            Width="300"
-                VerticalAlignment="Bottom"
-                HorizontalAlignment="Left"
-                />
-    </StackPanel>
-
+            Margin="10,50,10,10"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Left"
+            Grid.Column="0"
+            Grid.Row="1"                
+            >
+            <Button.Content>
+                <materialDesign:PackIcon
+                    Kind="KeyboardBackspace"
+                    Height="18"
+                    Width="18"
+                    />
+            </Button.Content>
+        </Button>
+    </Grid>
 </UserControl>
