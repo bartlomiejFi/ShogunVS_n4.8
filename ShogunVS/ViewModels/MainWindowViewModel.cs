@@ -1,16 +1,7 @@
-﻿using ShogunVS.ViewModels;
-using Prism.Commands;
-using Prism.Events;
+﻿using Prism.Events;
 using Prism.Ioc;
 using Prism.Modularity;
-using Prism.Mvvm;
 using Prism.Regions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace ShogunVS.ViewModels
 {
@@ -30,7 +21,7 @@ namespace ShogunVS.ViewModels
         {
             _RegionManager = regionManager;
             _ModuleManager = moduleManager;
-             
+
 
         }
 

@@ -2,10 +2,7 @@
 using OpenCvSharp;
 using ShogunVS.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace ShogunVS.Settings
 {
@@ -33,7 +30,6 @@ namespace ShogunVS.Settings
 
         #region Properties
 
-
         public string SettingsFilePath { get; set; }
 
         public ColorLimits Yellow = new ColorLimits();
@@ -49,7 +45,7 @@ namespace ShogunVS.Settings
         public ColorLimits Green = new ColorLimits();
 
         public int GaussianBlurSize;
-        public Rect ROI { get; set; } = new Rect(50,50,50,50);
+        public Rect ROI { get; set; } = new Rect(50, 50, 50, 50);
 
         #endregion
 

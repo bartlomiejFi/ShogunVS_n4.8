@@ -1,18 +1,15 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
-using ShogunVS.Models;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Ioc;
-using System;
+using ShogunVS.Models;
+using ShogunVS.Services;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ShogunVS.Services;
-using System.Windows;
 
 namespace ShogunVS.ViewModels
 {
@@ -68,7 +65,7 @@ namespace ShogunVS.ViewModels
 
 
             StartStopStreamingCommand = new DelegateCommand(StartStopStreamingInit);
-            AzizCommand = new DelegateCommand(yeelightControl.Aziz);
+            BlueLightOnCommand = new DelegateCommand(() => yeelightControl.StartBlueLight(4000));
             ExitCommand = new DelegateCommand(Exit);
 
             CameraList = CamerasDetector.CameraDevices();
@@ -88,7 +85,7 @@ namespace ShogunVS.ViewModels
 
         public DelegateCommand StartStopStreamingCommand { get; private set; }
 
-        public DelegateCommand AzizCommand { get; private set; }
+        public DelegateCommand BlueLightOnCommand { get; private set; }
 
         public DelegateCommand ExitCommand { get; private set; }
 
@@ -106,7 +103,7 @@ namespace ShogunVS.ViewModels
 
             set { SetProperty(ref _firstColor, value); }
         }
-   
+
         public SolidColorBrush SecondColor
         {
             get { return _secondColor; }
@@ -222,16 +219,16 @@ namespace ShogunVS.ViewModels
             }
         }
 
-        private void OnFrameUpdate(object sender,Mat newFrame)
+        private void OnFrameUpdate(object sender, Mat newFrame)
         {
-            //var bmp = newFrame.ToWriteableBitmap(); 
+            //var bmp = newFrame.ToWriteableBitmap();
             //bmp.Freeze();
-            //WriteableBitmap = bmp;         
+            //WriteableBitmap = bmp;
         }
 
         private void OnProcessedFramesUpdate(object sender, ProcessedFrames processedFrames)
         {
-            var bmp = processedFrames.GameResult.ToWriteableBitmap();
+            var bmp = processedFrames.CleanFrame.ToWriteableBitmap();
             bmp.Freeze();
             WriteableBitmap = bmp;
 

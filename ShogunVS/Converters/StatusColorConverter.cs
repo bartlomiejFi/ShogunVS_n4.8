@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -24,7 +20,7 @@ namespace ShogunVS.Converters
 
             if ((bool)value)
             {
-                if(StatusType == "Bar")
+                if (StatusType == "Bar")
                     return Brushes.Green;
                 else
                     return Brushes.CornflowerBlue;

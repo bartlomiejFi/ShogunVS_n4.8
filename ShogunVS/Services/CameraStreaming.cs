@@ -1,10 +1,8 @@
 ﻿using OpenCvSharp;
 using ShogunVS.Models;
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace ShogunVS.Services
 {
@@ -53,31 +51,19 @@ namespace ShogunVS.Services
 
                     using (var frame = new Mat())
                     {
-                        while(!_cancellationTokenSource.IsCancellationRequested)
+                        while (!_cancellationTokenSource.IsCancellationRequested)
                         {
-                          //      videoCapture.Set(VideoCaptureProperties.Brightness,20);
-                          //        videoCapture.Set(VideoCaptureProperties.Contrast,0);
-                          //  //videoCapture.Set(VideoCaptureProperties.FrameHeight, 720);
-                          //  //videoCapture.Set(VideoCaptureProperties.FrameWidth, 1280);
-                          //  //videoCapture.Set(VideoCaptureProperties.Fps, 30);
-                          //  var a = videoCapture.Brightness;
-                          //  var c = videoCapture.Contrast;
-                          //  var he = videoCapture.FrameHeight;
-                          //var wi = videoCapture.FrameWidth;
-                          //  var bu = videoCapture.BufferSize;
-                          //  var fps = videoCapture.Fps;
                             videoCapture.Read(frame);
-                            //Cv2.Resize(frame, frame, new OpenCvSharp.Size(600, 400));
                             if (!frame.Empty())
-                            {                              
-                                OnFrameUpdate?.Invoke(this,frame);
+                            {
+                                OnFrameUpdate?.Invoke(this, frame);
                             }
-                            await Task.Delay(800);
+                            await Task.Delay(300);
                         }
                     }
                     videoCapture?.Dispose();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -92,13 +78,10 @@ namespace ShogunVS.Services
             if (_cancellationTokenSource.IsCancellationRequested)
                 return;
 
-            if(!_streamTask.IsCompleted)
+            if (!_streamTask.IsCompleted)
             {
                 _cancellationTokenSource.Cancel();
                 await _streamTask;
-                //Mat frame = new Mat(new OpenCvSharp.Size(480, 640),MatType.CV_8UC3,Scalar.Black);
-              
-                //OnFrameUpdate?.Invoke(this, frame);
             }
         }
 

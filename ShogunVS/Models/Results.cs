@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace ShogunVS.Models
 {
@@ -24,18 +18,6 @@ namespace ShogunVS.Models
         public int BlackArmyNo;
         public int PurpleArmyNo;
         public int GreenArmyNo;
-
-
-        //public int armyNoo;
-
-        //public Results()
-        //{
-        //    first.armyNo = 0;
-        //    first.color = Brushes.Aqua;
-
-        //    second.armyNo = 0;
-        //    second.color = Brushes.Aqua;
-        //}
     }
 
     public class Result
