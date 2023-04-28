@@ -168,12 +168,14 @@ namespace ShogunVS.Services
                     Cv2.Mean(processedFrames.GreenNeutral, frameMaskBottomLine) == new Scalar(255))
                     return;
 
-                Dictionary<SolidColorBrush, int> resultsDictionary = new Dictionary<SolidColorBrush, int>();
-                resultsDictionary.Add(Brushes.Yellow, results.YellowArmyNo);
-                resultsDictionary.Add(Brushes.Red, results.RedArmyNo);
-                resultsDictionary.Add(Brushes.Blue, results.BlueArmyNo);
-                resultsDictionary.Add(Brushes.Black, results.BlackArmyNo);
-                resultsDictionary.Add(Brushes.Purple, results.PurpleArmyNo);
+                Dictionary<SolidColorBrush, int> resultsDictionary = new Dictionary<SolidColorBrush, int>
+                {
+                    { Brushes.Yellow, results.YellowArmyNo },
+                    { Brushes.Red, results.RedArmyNo },
+                    { Brushes.Blue, results.BlueArmyNo },
+                    { Brushes.Black, results.BlackArmyNo },
+                    { Brushes.Purple, results.PurpleArmyNo }
+                };
                 var ordered = resultsDictionary.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
 
                 results.first.armyNo = ordered.ElementAt(0).Value;
